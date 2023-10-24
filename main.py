@@ -7,7 +7,7 @@ s = ""
 t_strings = []
 R_subsets = {}
 
-file_path = "../"
+file_path = "./"
 file_name = "test02.swe"
 
 #TODO:
