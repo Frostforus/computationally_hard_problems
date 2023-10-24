@@ -1,32 +1,5 @@
+import copy
 import re
-
-text = "Hello, my email is example@email.com and my phone number is 123-456-7890."
-
-email_pattern = r'\b[\w\.-]+@[\w\.-]+\.\w+\b'
-phone_pattern = r'\d{3}-\d{3}-\d{4}'
-
-emails = re.findall(email_pattern, text)
-phone_numbers = re.findall(phone_pattern, text)
-
-print("Emails:", emails)
-print("Phone Numbers:", phone_numbers)
-
-# Array of strings to check
-substring_array = ["apple", "banana", "cherry"]
-
-# Target string to search within
-target_string = "I like apples and cherries."
-
-# Construct a regex pattern to match any of the substrings
-pattern = "|".join(re.escape(substring) for substring in substring_array)
-
-# Use re.search() to check for matches
-match = re.search(pattern, target_string)
-
-if match:
-    print("Found a match:", match.group())
-else:
-    print("No match found.")
 
 # Initialize variables
 k = 0
@@ -58,10 +31,42 @@ with open(file_path+file_name, "r") as file:
             letter, content = line.split(":", 1)
             R_subsets[letter] = content.strip().split(",")
 
+
 # Print the variables
-print("k:", k)
-print("s String :", s)
-print("t_strings:", t_strings)
-print("R_subsets:", R_subsets)
+def print_all():
+    print("k:", k)
+    print("s String :", s)
+    print("t_strings:", t_strings)
+    print("R_subsets:", R_subsets)
+
+print_all()
 
 
+
+def alphabet_prune(k,s,t_strings,R_subsets):
+    prunes = 0
+    alphabet_s = set(s)
+
+    new_R_subsets = dict()
+
+    for R in R_subsets:
+        new_R_subsets[R] = []
+        for r in R_subsets[R]:
+            prune = False
+            for letter in r:
+                if not prune and letter not in alphabet_s:
+                    #print(f"r: {r}: letter {letter} not in alphabet {alphabet_s}")
+                    prune = True
+            if not prune:
+                new_R_subsets[R].append(r)
+
+    R_subsets =  copy.deepcopy(new_R_subsets)
+
+    return k,s,t_strings,R_subsets
+
+print(len(s))
+
+
+k,s,t_strings,R_subsets = alphabet_prune(k,s,t_strings,R_subsets)
+print_all()
+print("Pruning done..")
