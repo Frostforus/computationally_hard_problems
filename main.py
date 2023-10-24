@@ -8,7 +8,7 @@ t_strings = []
 R_subsets = {}
 
 file_path = "./"
-file_name = "test02.swe"
+file_name = "test05.swe"
 
 #TODO:
 
@@ -81,10 +81,11 @@ def findSolutions(s,t,i,R,Gamma,subsitutions):
         return subsitutions
     
     gam= Gamma[i]
-    new_t=[]
+    
     # try all r
     for j in range(len(R[gam])):
         succes=True
+        new_t=[]
         #apply subsitution for each t
         for t_i in t:
             new_t_i=""
@@ -106,7 +107,7 @@ def findSolutions(s,t,i,R,Gamma,subsitutions):
                 succes=False
                 break
         if succes:
-            subsitutions[i]=R[gam][j]
+            subsitutions[gam]=R[gam][j]
             result= findSolutions(s,new_t,i+1,R,Gamma,subsitutions)
             if result:
                 return result
