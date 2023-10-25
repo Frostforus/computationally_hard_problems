@@ -33,24 +33,30 @@ class Variables:
                     self.R_subsets[letter] = content.strip().split(",")
 
     def get_variables_from_input(self):
-        self.k = int(input())
+        try:
+            self.k = int(input())
 
-        self.s = input()
+            self.s = input()
 
-        # t_strings
-        for i in range(self.k):
-            self.t_strings.append(input())
+            # t_strings
+            for i in range(self.k):
+                self.t_strings.append(input())
 
-        # R_subsets
-        while True:
-            line = input()
+            # R_subsets
+            while True:
+                line = input()
 
-            if not line.strip():
-                break
+                if not line.strip():
+                    break
 
-            if ":" in line:
-                letter, content = line.split(":", 1)
-                self.R_subsets[letter] = content.strip().split(",")
+                if ":" in line:
+                    letter, content = line.split(":", 1)
+                    self.R_subsets[letter] = content.strip().split(",")
+        except:
+            # only used to catch fails
+            pass
+
+
 
     def alphabet_prune(self, ):
         # TODO: count prunes if we want to
@@ -70,10 +76,10 @@ class Variables:
                     new_R_subsets[R].append(r)
 
         self.R_subsets = copy.deepcopy(new_R_subsets)
-        print("Pruning done.")
+        # print("Pruning done.")
 
 
-def test_if_substring(s, new_t_i):
+def is_substring(s, new_t_i):
     compiled_regex = re.compile(new_t_i)
     return compiled_regex.search(s) is not None
 
@@ -105,7 +111,7 @@ def find_solutions(s, t_strings, i, R_subsets, Gamma, substitutions):
                     test_t_i += c
 
             # test new_t_i
-            isSubstring = test_if_substring(s, test_t_i)
+            isSubstring = is_substring(s, test_t_i)
             if not isSubstring:
                 success = False
                 break
@@ -122,11 +128,15 @@ def find_solutions(s, t_strings, i, R_subsets, Gamma, substitutions):
 
 if __name__ == "__main__":
     variables = Variables()
-    variables.get_variables_from_file("test03.swe")
-
-    print(variables)
+    # variables.get_variables_from_file("test02.swe")
+    variables.get_variables_from_input()
+    # print(variables)
     variables.alphabet_prune()
-    print(variables)
+    # print(variables)
 
-    print(
-        find_solutions(variables.s, variables.t_strings, 0, variables.R_subsets, list(variables.R_subsets.keys()), {}))
+    result = find_solutions(variables.s, variables.t_strings, 0, variables.R_subsets, list(variables.R_subsets.keys()),
+                            {})
+    if result:
+        print(result)
+    else:
+        print("NO")
