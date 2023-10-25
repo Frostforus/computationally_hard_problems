@@ -128,5 +128,7 @@ if __name__ == "__main__":
     variables.alphabet_prune()
     print(variables)
 
-    print(
-        find_solutions(variables.s, variables.t_strings, 0, variables.R_subsets, list(variables.R_subsets.keys()), {}))
+    result= find_solutions(variables.s, variables.t_strings, 0, variables.R_subsets, list(variables.R_subsets.keys()), {})
+    if result==False:
+        result="NO"
+    print(result)
