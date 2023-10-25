@@ -1,121 +1,132 @@
 import copy
 import re
 
+
 # Initialize variables
-k = 0
-s = ""
-t_strings = []
-R_subsets = {}
+class Variables:
+    k = 0
+    s = ""
+    t_strings = []
+    R_subsets = {}
 
-file_path = "./"
-file_name = "test05.swe"
+    def __str__(self):
+        return f"Variables(k={self.k}, s={self.s}, t_strings={self.t_strings}, R_subsets = {self.R_subsets})"
 
-#TODO:
+    def get_variables_from_file(self, filename, filepath="./"):
+        # Read the input file
+        with open(filepath + filename, "r") as file:
+            # Read the number k
+            self.k = int(file.readline().strip())
 
-# Read the input file
-with open(file_path+file_name, "r") as file:
-    # Read the number k
-    k = int(file.readline().strip())
+            # Read the string s
+            self.s = file.readline().strip()
 
-    # Read the string s
-    s = file.readline().strip()
+            # Read the k strings t1, t2, ..., tk
+            for _ in range(self.k):
+                t = file.readline().strip()
+                self.t_strings.append(t)
 
-    # Read the k strings t1, t2, ..., tk
-    for _ in range(k):
-        t = file.readline().strip()
-        t_strings.append(t)
+            # Read the sets of letters and their corresponding contents
+            for line in file:
+                if line.strip():  # Skip empty lines
+                    letter, content = line.split(":", 1)
+                    self.R_subsets[letter] = content.strip().split(",")
 
-    # Read the sets of letters and their corresponding contents
-    for line in file:
-        if line.strip():  # Skip empty lines
-            letter, content = line.split(":", 1)
-            R_subsets[letter] = content.strip().split(",")
+    def get_variables_from_input(self):
+        self.k = int(input())
+
+        self.s = input()
+
+        # t_strings
+        for i in range(self.k):
+            self.t_strings.append(input())
+
+        # R_subsets
+        while True:
+            line = input()
+
+            if not line.strip():
+                break
+
+            if ":" in line:
+                letter, content = line.split(":", 1)
+                self.R_subsets[letter] = content.strip().split(",")
+
+    def alphabet_prune(self, ):
+        # TODO: count prunes if we want to
+        # prunes = 0
+        alphabet_s = set(self.s)
+        new_R_subsets = dict()
+
+        for R in self.R_subsets:
+            new_R_subsets[R] = []
+            for r in self.R_subsets[R]:
+                prune = False
+                for letter in r:
+                    if not prune and letter not in alphabet_s:
+                        # print(f"r: {r}: letter {letter} not in alphabet {alphabet_s}")
+                        prune = True
+                if not prune:
+                    new_R_subsets[R].append(r)
+
+        self.R_subsets = copy.deepcopy(new_R_subsets)
+        print("Pruning done.")
 
 
-# Print the variables
-def print_all():
-    print("k:", k)
-    print("s String :", s)
-    print("t_strings:", t_strings)
-    print("R_subsets:", R_subsets)
-
-#print_all()
-
-
-
-def alphabet_prune(k,s,t_strings,R_subsets):
-    prunes = 0
-    alphabet_s = set(s)
-
-    new_R_subsets = dict()
-
-    for R in R_subsets:
-        new_R_subsets[R] = []
-        for r in R_subsets[R]:
-            prune = False
-            for letter in r:
-                if not prune and letter not in alphabet_s:
-                    #print(f"r: {r}: letter {letter} not in alphabet {alphabet_s}")
-                    prune = True
-            if not prune:
-                new_R_subsets[R].append(r)
-
-    R_subsets =  copy.deepcopy(new_R_subsets)
-
-    return k,s,t_strings,R_subsets
-
-print(len(s))
-
-
-k,s,t_strings,R_subsets = alphabet_prune(k,s,t_strings,R_subsets)
-print_all()
-print("Pruning done..")
-
-def TestIfSubstring(s,new_t_i):
-    compiled_regex =re.compile(new_t_i)
+def test_if_substring(s, new_t_i):
+    compiled_regex = re.compile(new_t_i)
     return compiled_regex.search(s) is not None
 
-def findSolutions(s,t,i,R,Gamma,subsitutions):
-    # if no gamma's are left a solution has been found
-    if i>= len(R.keys()):
-        return subsitutions
-    
-    gam= Gamma[i]
-    
+
+def find_solutions(s, t_strings, i, R_subsets, Gamma, substitutions):
+    # if no gammas are left a solution has been found
+    if i >= len(R_subsets.keys()):
+        return substitutions
+
+    gam = Gamma[i]
+
     # try all r
-    for j in range(len(R[gam])):
-        succes=True
-        new_t=[]
-        #apply subsitution for each t
-        for t_i in t:
-            new_t_i=""
-            test_t_i=r""
+    for j in range(len(R_subsets[gam])):
+        success = True
+        new_t = []
+        # apply substitution for each t
+        for t_i in t_strings:
+            new_t_i = ""
+            test_t_i = r""
             for c in t_i:
-                if c== gam:
-                    new_t_i+= R[gam][j]
-                    test_t_i+= R[gam][j]
+                if c == gam:
+                    new_t_i += R_subsets[gam][j]
+                    test_t_i += R_subsets[gam][j]
                 elif c in Gamma:
-                    test_t_i+= "."
-                    new_t_i+= c
+                    test_t_i += "."
+                    new_t_i += c
                 else:
-                    new_t_i+= c
-                    test_t_i+= c
-            new_t.append(new_t_i)
-            #test new_t_i
-            isSubstring= TestIfSubstring(s,test_t_i)
+                    new_t_i += c
+                    test_t_i += c
+
+            # test new_t_i
+            isSubstring = test_if_substring(s, test_t_i)
             if not isSubstring:
-                succes=False
+                success = False
                 break
-        if succes:
-            subsitutions[gam]=R[gam][j]
-            result= findSolutions(s,new_t,i+1,R,Gamma,subsitutions)
+
+            new_t.append(new_t_i)
+
+        if success:
+            substitutions[gam] = R_subsets[gam][j]
+            result = find_solutions(s, new_t, i + 1, R_subsets, Gamma, substitutions)
             if result:
                 return result
     return False
 
-result=findSolutions(s,t_strings,0,R_subsets,list(R_subsets.keys()),{})
-print(result)
-    
-        
 
+if __name__ == "__main__":
+    variables = Variables()
+    variables.get_variables_from_file("test03.swe")
 
+    print(variables)
+    variables.alphabet_prune()
+    print(variables)
+
+    print(
+        find_solutions(variables.s, variables.t_strings, 0, variables.R_subsets, list(variables.R_subsets.keys()), {}))
