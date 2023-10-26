@@ -39,8 +39,6 @@ class Variables:
                 return "NO"
 
             self.s = input()
-            if self.s=="":
-                return "NO"
 
             # t_strings
             for i in range(self.k):
@@ -70,6 +68,7 @@ class Variables:
         # TODO: count prunes if we want to
         # prunes = 0
         alphabet_s = set(self.s)
+        alphabet_s.add("")
         new_R_subsets = dict()
 
         for R in self.R_subsets:
@@ -88,6 +87,9 @@ class Variables:
 
 
 def is_substring(s, new_t_i):
+    if s =="" and new_t_i =="":
+        return True
+
     compiled_regex = re.compile(new_t_i)
     return compiled_regex.search(s) is not None
 
@@ -112,7 +114,8 @@ def find_solutions(s, t_strings, i, R_subsets, Gamma, substitutions):
                     new_t_i += R_subsets[gam][j]
                     test_t_i += R_subsets[gam][j]
                 elif c in Gamma:
-                    test_t_i += "."
+                    if "" not in R_subsets[gam]:
+                        test_t_i += "."
                     new_t_i += c
                 else:
                     new_t_i += c
