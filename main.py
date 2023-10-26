@@ -35,8 +35,12 @@ class Variables:
     def get_variables_from_input(self):
         try:
             self.k = int(input())
+            if self.k<0:
+                return "NO"
 
             self.s = input()
+            if self.s=="":
+                return "NO"
 
             # t_strings
             for i in range(self.k):
@@ -51,7 +55,11 @@ class Variables:
 
                 if ":" in line:
                     letter, content = line.split(":", 1)
+                    if letter in self.R_subsets.keys():
+                        return "NO"
                     self.R_subsets[letter] = content.strip().split(",")
+                else:
+                    return "NO"
         except:
             # only used to catch fails
             pass
@@ -129,14 +137,20 @@ def find_solutions(s, t_strings, i, R_subsets, Gamma, substitutions):
 if __name__ == "__main__":
     variables = Variables()
     # variables.get_variables_from_file("test02.swe")
-    variables.get_variables_from_input()
-    # print(variables)
-    variables.alphabet_prune()
-    # print(variables)
-
-    result = find_solutions(variables.s, variables.t_strings, 0, variables.R_subsets, list(variables.R_subsets.keys()),
-                            {})
-    if result:
-        print(result)
-    else:
+    correct_extraction=variables.get_variables_from_input()
+    #test if non conforming input
+    if correct_extraction=="NO":
         print("NO")
+    #solve the problem
+    else:
+        # print(variables)
+        variables.alphabet_prune()
+        # print(variables)
+
+        result = find_solutions(variables.s, variables.t_strings, 0, variables.R_subsets, list(variables.R_subsets.keys()),
+                                {})
+        if result:
+            for k in result.keys():
+                print(k + ':' + result[k])
+        else:
+            print("NO")
