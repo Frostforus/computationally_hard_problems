@@ -4,13 +4,25 @@ import re
 
 # Initialize variables
 class Variables:
-    k = 0
-    s = ""
-    t_strings = []
-    R_subsets = {}
+    __slots__ = ("k", "s", "t_strings", "R_subsets")
+
+    def __init__(self):
+        self.t_strings = []
+        self.R_subsets = {}
 
     def __str__(self):
         return f"Variables(k={self.k}, s={self.s}, t_strings={self.t_strings}, R_subsets = {self.R_subsets})"
+
+    def check_lowercase(self):
+        if not re.findall("^[a-z]*$", self.s):
+            return False
+
+        for R in self.R_subsets:
+            for substring in self.R_subsets[R]:
+                if not re.findall("^[a-z]*$", substring):
+                    return False
+
+        return True
 
     def get_variables_from_file(self, filename, filepath="./"):
         # Read the input file
@@ -35,7 +47,7 @@ class Variables:
     def get_variables_from_input(self):
         try:
             self.k = int(input())
-            if self.k<0:
+            if self.k < 0:
                 return "NO"
 
             self.s = input()
@@ -62,7 +74,12 @@ class Variables:
             # only used to catch fails
             pass
 
+    def check_multiset(self):
+        for R in self.R_subsets:
+            if len(self.R_subsets[R]) != len(set(self.R_subsets[R])):
+                return False
 
+        return True
 
     def alphabet_prune(self, ):
         # TODO: count prunes if we want to
@@ -87,7 +104,7 @@ class Variables:
 
 
 def is_substring(s, new_t_i):
-    if s =="" and new_t_i =="":
+    if s == "" and new_t_i == "":
         return True
 
     compiled_regex = re.compile(new_t_i)
@@ -114,8 +131,7 @@ def find_solutions(s, t_strings, i, R_subsets, Gamma, substitutions):
                     new_t_i += R_subsets[gam][j]
                     test_t_i += R_subsets[gam][j]
                 elif c in Gamma:
-                    if "" not in R_subsets[gam]:
-                        test_t_i += "."
+                    test_t_i += ".?"
                     new_t_i += c
                 else:
                     new_t_i += c
@@ -138,22 +154,32 @@ def find_solutions(s, t_strings, i, R_subsets, Gamma, substitutions):
 
 
 if __name__ == "__main__":
-    variables = Variables()
-    # variables.get_variables_from_file("test02.swe")
-    correct_extraction=variables.get_variables_from_input()
-    #test if non conforming input
-    if correct_extraction=="NO":
-        print("NO")
-    #solve the problem
-    else:
-        # print(variables)
-        variables.alphabet_prune()
-        # print(variables)
+    try:
 
-        result = find_solutions(variables.s, variables.t_strings, 0, variables.R_subsets, list(variables.R_subsets.keys()),
-                                {})
-        if result:
-            for k in result.keys():
-                print(k + ':' + result[k])
-        else:
+        variables = Variables()
+        # variables.get_variables_from_file("test02.swe")
+        correct_extraction = variables.get_variables_from_input()
+        # test if non conforming input
+        if correct_extraction == "NO" or not variables.check_lowercase() or not variables.check_multiset():
             print("NO")
+        # solve the problem
+        else:
+            # print(variables)
+            variables.alphabet_prune()
+            # print(variables)
+
+            result = find_solutions(variables.s, variables.t_strings, 0, variables.R_subsets,
+                                    list(variables.R_subsets.keys()),
+                                    {})
+            if result:
+                for k in result.keys():
+                    print(k + ':' + result[k])
+            else:
+                if variables.s == "":
+                    for k in variables.R_subsets.keys():
+                        print(k + ':' )
+                else:
+                    print("NO")
+
+    except Exception as e:
+        print(f"NO")
